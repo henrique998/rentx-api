@@ -1,6 +1,6 @@
 import cors from "cors"
 import "dotenv/config"
-import express, { Request, Response } from "express"
+import express, { NextFunction, Request, Response } from "express"
 
 import "express-async-errors"
 // import { resolve } from "path"
@@ -11,17 +11,18 @@ import "./container"
 import swaggerUi from "swagger-ui-express"
 import { AppError } from "./errors/AppError"
 import { routes } from "./routes"
+import { resolve } from "path"
 
 const app = express()
 
 app.use(express.json())
-// app.use(express.static(resolve(__dirname, "..", "temp")))
+app.use("/images", express.static(resolve(__dirname, "..", "uploads")))
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerFile))
 app.use(cors())
 app.use(routes)
 
-app.use((err: Error, request: Request, response: Response) => {
+app.use((err: Error, request: Request, response: Response, next: NextFunction) => {
     if (err instanceof AppError) {
         return response.status(err.statusCode).json({
             message: err.message,

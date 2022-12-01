@@ -1,7 +1,12 @@
 interface AccountDataDTO {
-    name: string;
-    email: string;
-    password: string;
+    id: string
+    name: string
+    email: string
+    password: string
+    driver_license: string
+    avatar?: string
+    admin: boolean
+    created_at: Date
 }
 
-export { AccountDataDTO };
+export { AccountDataDTO }

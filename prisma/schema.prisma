@@ -7,6 +7,60 @@ datasource db {
   url      = "file:./dev.db"
 }
 
+model Account {
+  id String @id @default(uuid())
+
+  name           String
+  email          String  @unique
+  password       String
+  driver_license String  @unique
+  admin          Boolean @default(false)
+  avatar         String?
+
+  rentals     Rental[]
+  auth_tokens AccountAuthToken[]
+
+  created_at DateTime @default(now())
+
+  @@map("accounts")
+}
+
+model AccountAuthToken {
+  id String @id @default(uuid())
+
+  refresh_token String
+  expires_date  DateTime
+  created_at    DateTime @default(now())
+
+  account    Account @relation(fields: [account_id], references: [id])
+  account_id String
+
+  @@map("account_auth_tokens")
+}
+
+model Car {
+  id String @id @default(uuid())
+
+  name          String
+  description   String
+  daily_rate    Int
+  available     Boolean @default(true)
+  license_plate String  @unique
+  fine_amount   Int
+  brand         String
+
+  category    Category? @relation(fields: [category_id], references: [id], onDelete: SetNull)
+  category_id String?
+
+  carSpecifications CarSpecification[]
+  images            CarImage[]
+  rentals           Rental[]
+
+  created_at DateTime @default(now())
+
+  @@map("cars")
+}
+
 model Category {
   id String @id @default(uuid())
 
@@ -14,6 +68,8 @@ model Category {
   description String
 
   created_at DateTime @default(now())
+
+  cars Car[]
 
   @@map("categories")
 }
@@ -24,7 +80,56 @@ model Specification {
   name        String @unique
   description String
 
+  carSpecifications CarSpecification[]
+
   created_at DateTime @default(now())
 
   @@map("specifications")
+}
+
+model CarSpecification {
+  id String @id @default(uuid())
+
+  car    Car?    @relation(fields: [car_id], references: [id], onDelete: SetNull)
+  car_id String?
+
+  specification    Specification? @relation(fields: [specification_id], references: [id], onDelete: SetNull)
+  specification_id String?
+
+  created_at DateTime @default(now())
+
+  @@map("car_specifications")
+}
+
+model CarImage {
+  id String @id @default(uuid())
+
+  car    Car?    @relation(fields: [car_id], references: [id], onDelete: SetNull)
+  car_id String?
+
+  image_url String
+
+  created_at DateTime @default(now())
+
+  @@map("car_images")
+}
+
+model Rental {
+  id String @id @default(uuid())
+
+  car    Car?    @relation(fields: [car_id], references: [id], onDelete: Cascade)
+  car_id String?
+
+  account    Account? @relation(fields: [account_id], references: [id], onDelete: Cascade)
+  account_id String?
+
+  start_date           DateTime  @default(now())
+  end_date             DateTime?
+  expected_return_date DateTime
+  total                Int?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  @@map("rentals")
 }

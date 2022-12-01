@@ -2,6 +2,7 @@ import { NextFunction, Request, response, Response } from "express";
 import { verify } from "jsonwebtoken";
 import { authConfig } from "../config/auth";
 import { AppError } from "../errors/AppError";
+import { PrismaAccountsRepository } from "../repositories/accounts/implementations/PrismaAccountsRepository";
 
 interface IPayload {
   sub: string;
@@ -21,11 +22,19 @@ async function ensureAuthenticated(
   const [, token] = authHeader?.split(" ");
 
   try {
-    // const { sub } = verify(token, authConfig.SECRET_KEY) as IPayload;
+    const { sub: account_id } = verify(token, authConfig.TOKEN_SECRET_KEY) as IPayload;
 
-    // req.user = {
-    //   id: sub
-    // }
+    const accountsRepository = new PrismaAccountsRepository()
+
+    const accountExists = await accountsRepository.findById(account_id)
+
+    if (!accountExists) {
+      throw new AppError({ error: "Account not found!" }, 404)
+    }
+
+    req.account = {
+      id: account_id
+    }
 
     next();
   } catch {

@@ -21,7 +21,7 @@ class CreateCategoryUseCase {
         }
 
         if (!description) {
-            throw new AppError("email is required!");
+            throw new AppError("description is required!");
         }
 
         const categoryAlreadyExists = await this.categoriesRepository.findByName(name)

@@ -11,7 +11,7 @@ interface IRequest {
 @injectable()
 class CreateSpecificationUseCase {
     constructor(
-        @inject("PrismaCategoriesRepository")
+        @inject("PrismaSpecificationsRepository")
         private specificationsRepository: ISpecificationsRepository
     ) { }
 
